@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A calendar page inside the 66dp safe zone: a header band, two binder rings, and one day
+     picked out in a circle among the dots of the others. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- The page, with the day grid cut out of it. -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M40,34 L68,34 Q74,34 74,40 L74,70 Q74,76 68,76 L40,76 Q34,76 34,70 L34,40 Q34,34 40,34 Z
+            M40,46 L68,46 L68,70 L40,70 Z" />
+    <!-- Dots for the days, and the picked day as a ring. -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M44,52 m-2.2,0 a2.2,2.2 0,1 1,4.4 0 a2.2,2.2 0,1 1,-4.4 0
+            M54,52 m-2.2,0 a2.2,2.2 0,1 1,4.4 0 a2.2,2.2 0,1 1,-4.4 0
+            M64,52 m-2.2,0 a2.2,2.2 0,1 1,4.4 0 a2.2,2.2 0,1 1,-4.4 0
+            M44,62 m-2.2,0 a2.2,2.2 0,1 1,4.4 0 a2.2,2.2 0,1 1,-4.4 0
+            M54,62 m-2.2,0 a2.2,2.2 0,1 1,4.4 0 a2.2,2.2 0,1 1,-4.4 0" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M64,62 m-5,0 a5,5 0,1 1,10 0 a5,5 0,1 1,-10 0 Z
+            M64,62 m-3,0 a3,3 0,1 0,6 0 a3,3 0,1 0,-6 0 Z" />
+    <!-- The rings. -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M43,30 L47,30 L47,38 L43,38 Z M61,30 L65,30 L65,38 L61,38 Z" />
+</vector>
