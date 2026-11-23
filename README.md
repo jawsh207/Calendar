@@ -109,7 +109,18 @@ For what each part of the app does and which file it's in, see
 
 ### Signing keys
 
-Set as repository secrets (Settings → Secrets and variables → Actions):
+To make both keys and upload them, run this once on your own computer (it needs a JDK for
+`keytool` and the GitHub CLI, signed in with `gh auth login`):
+
+```sh
+scripts/make-signing-keys.sh            # keystores go in ~/keys/calendar
+```
+
+It asks for a password for each key, writes the keystores outside the repository, sets the four
+secrets below and prints each certificate's SHA-256. Back up the keystores and passwords: an app
+signed with a lost release key can't be updated over, only reinstalled.
+
+The secrets, also settable by hand (Settings → Secrets and variables → Actions):
 
 | Secret | Value |
 | --- | --- |
