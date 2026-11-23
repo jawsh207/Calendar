@@ -31,7 +31,6 @@ import androidx.compose.material.icons.filled.ViewAgenda
 import androidx.compose.material.icons.outlined.CalendarViewDay
 import androidx.compose.material.icons.outlined.CalendarViewMonth
 import androidx.compose.material.icons.outlined.CalendarViewWeek
-import androidx.compose.material.icons.outlined.Today
 import androidx.compose.material.icons.outlined.ViewAgenda
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ArrowDropDown
@@ -53,6 +52,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -71,6 +72,7 @@ import app.agenda.calendar.ui.agenda.AgendaView
 import app.agenda.calendar.ui.components.BottomBar
 import app.agenda.calendar.ui.components.DatePickDialog
 import app.agenda.calendar.ui.components.SearchPill
+import app.agenda.calendar.ui.components.TodayIcon
 import app.agenda.calendar.ui.components.rememberFormats
 import app.agenda.calendar.ui.month.MonthAgendaView
 import app.agenda.calendar.ui.month.MonthView
@@ -89,7 +91,7 @@ private enum class Tab(val view: CalendarView, @StringRes val label: Int, val ic
 
 /**
  * The main screen, laid out like Notes and Contacts: the search bar pinned at the top with
- * Today and Settings at its end, a heading with the month being looked at (tap it to jump to a
+ * Today (a calendar page with today's date in it, as in Google Calendar) and Settings at its end, a heading with the month being looked at (tap it to jump to a
  * date; arrows turn the page), the view itself, the + button for a new event, and the bottom
  * bar switching between Month, Week, Agenda and Month + agenda. The view chosen is remembered.
  */
@@ -102,6 +104,7 @@ fun HomeScreen(
     onNewEvent: (LocalDate, Int?) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
+    val todayLabel = stringResource(R.string.today)
     val motion = MaterialTheme.motionScheme
     val formats = rememberFormats()
     val view by viewModel.view.collectAsStateWithLifecycle()
@@ -143,7 +146,9 @@ fun HomeScreen(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                     trailing = {
                         Row {
-                            IconButton(onClick = viewModel::goToToday) { Icon(Icons.Outlined.Today, stringResource(R.string.today)) }
+                            IconButton(onClick = viewModel::goToToday, modifier = Modifier.semantics { contentDescription = todayLabel }) {
+                                TodayIcon(today)
+                            }
                             IconButton(onClick = onSettings) { Icon(Icons.Rounded.Settings, stringResource(R.string.settings)) }
                         }
                     },

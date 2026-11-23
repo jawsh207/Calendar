@@ -207,9 +207,11 @@ class CalendarViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch(Dispatchers.IO) { runCatching { repository.setVisible(calendar.id, visible) } }
     }
 
-    /** Makes a new calendar on this phone. */
-    fun createCalendar(name: String, color: Int) {
-        viewModelScope.launch(Dispatchers.IO) { runCatching { repository.createCalendar(name, color) } }
+    /** Makes a new calendar on this phone, then calls [done] with its id (null if it couldn't be made). */
+    fun createCalendar(name: String, color: Int, done: (Long?) -> Unit = {}) {
+        viewModelScope.launch {
+            done(withContext(Dispatchers.IO) { runCatching { repository.createCalendar(name, color) }.getOrNull() })
+        }
     }
 
     /** Renames and recolours a calendar on this phone. */

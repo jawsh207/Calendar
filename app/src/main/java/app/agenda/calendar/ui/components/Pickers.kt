@@ -83,7 +83,8 @@ fun TimePickDialog(initial: LocalTime, onPick: (LocalTime) -> Unit, onDismiss: (
 
 /**
  * A dialog with one choice to pick from a list, ticked with a radio button. Picking closes it.
- * [leading] can draw something before each label (a calendar's colour).
+ * [leading] can draw something before each label (a calendar's colour); [footer] adds a row
+ * under the choices (New calendar).
  */
 @Composable
 fun <T> ChoiceDialog(
@@ -94,6 +95,7 @@ fun <T> ChoiceDialog(
     onPick: (T) -> Unit,
     onDismiss: () -> Unit,
     leading: (@Composable (T) -> Unit)? = null,
+    footer: (@Composable () -> Unit)? = null,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -115,6 +117,7 @@ fun <T> ChoiceDialog(
                         Text(label(choice), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(vertical = 8.dp))
                     }
                 }
+                footer?.invoke()
             }
         },
         confirmButton = {},

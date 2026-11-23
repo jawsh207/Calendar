@@ -23,7 +23,8 @@ On first launch the app asks for calendar access (read and write) and to show no
 for reminders. If there's no calendar it can write to, it makes a "Personal" calendar on the
 phone.
 
-- **Top of the screen:** the search bar; at its end, **Today** and **Settings**. Under it the
+- **Top of the screen:** the search bar; at its end, **Today** (a calendar page showing
+  today's date, as in Google Calendar) and **Settings**. Under it the
   month being looked at: tap it to jump to any date, or use the arrows to turn the page.
 - **Month:** six weeks of days with their events written in. Swipe sideways for other months.
   Tap a day to see all its events in a sheet; long-press a day to add an event on it.
@@ -38,7 +39,9 @@ phone.
   reminders, notes and calendar. Edit and Delete are there when its calendar can be written
   to. For a repeating event both ask whether it's this one time or all of them.
 - **New event (+):** title, all day or times (moving the start takes the end along), repeat
-  (daily, weekly, monthly, yearly), calendar, reminders, place and notes. Repeat rules made in
+  (daily, weekly, monthly, yearly), calendar, reminders, place and notes. The calendar
+  choice lists every calendar you can add events to, with **New calendar** to make one on
+  the phone there and then. Repeat rules made in
   other apps that don't fit those choices are kept as they are.
 - **Search:** finds events by words in their title, place or notes, from a year ago to two
   years ahead.

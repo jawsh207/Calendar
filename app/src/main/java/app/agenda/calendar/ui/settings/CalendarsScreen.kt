@@ -132,9 +132,12 @@ fun CalendarsScreen(viewModel: CalendarViewModel, onBack: () -> Unit) {
     }
 }
 
-/** Naming and colouring a calendar on this phone; with [onDelete], deleting it too (asked twice). */
+/**
+ * Naming and colouring a calendar on this phone; with [onDelete], deleting it too (asked twice).
+ * Also used by the event editor's New calendar.
+ */
 @Composable
-private fun CalendarDialog(
+fun CalendarDialog(
     title: String,
     initialName: String,
     initialColor: Int,

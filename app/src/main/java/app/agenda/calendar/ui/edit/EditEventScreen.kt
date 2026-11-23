@@ -28,6 +28,7 @@ import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Place
 import androidx.compose.material.icons.outlined.Repeat
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -52,6 +53,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -66,6 +68,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.agenda.calendar.R
 import app.agenda.calendar.data.EditScope
 import app.agenda.calendar.data.EventDraft
+import app.agenda.calendar.data.calendarColors
 import app.agenda.calendar.data.Repeat
 import app.agenda.calendar.data.draftOf
 import app.agenda.calendar.data.newDraft
@@ -84,6 +87,7 @@ import app.agenda.calendar.ui.components.rememberFormats
 import app.agenda.calendar.ui.components.repeatText
 import app.agenda.calendar.ui.components.segmentShape
 import app.agenda.calendar.ui.event.accountLabel
+import app.agenda.calendar.ui.settings.CalendarDialog
 import java.time.LocalDateTime
 import java.time.ZoneId
 import kotlinx.coroutines.flow.filterNotNull
@@ -91,7 +95,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /** Which picker or question is open over the editor. */
-private enum class Open { StartDate, StartTime, EndDate, EndTime, Repeat, Calendar, Reminder, Discard }
+private enum class Open { StartDate, StartTime, EndDate, EndTime, Repeat, Calendar, NewCalendar, Reminder, Discard }
 
 /**
  * The editor, for a new event or a change to one. The title is on top; then when (all day or
@@ -99,8 +103,9 @@ private enum class Open { StartDate, StartTime, EndDate, EndTime, Repeat, Calend
  * Moving the start takes the end with it. Leaving with changes asks first. Saving writes
  * straight to the calendar storage, where other calendar apps see it too.
  *
- * Editing one repeat of a repeating event can't move it to another calendar or make it repeat,
- * so those rows are left out then.
+ * The calendar row lists every calendar events can be saved to, and New calendar makes one on
+ * this phone and picks it. Editing one repeat of a repeating event can't move it to another
+ * calendar or make it repeat, so those rows are left out then.
  */
 @Composable
 fun EditEventScreen(viewModel: CalendarViewModel, screen: Screen.Edit, onClose: () -> Unit, onSaved: () -> Unit) {
@@ -232,7 +237,7 @@ fun EditEventScreen(viewModel: CalendarViewModel, screen: Screen.Edit, onClose: 
                         chosen?.name ?: stringResource(R.string.personal),
                         summary = chosen?.let { accountLabel(context, it.accountName, it.local) } ?: stringResource(R.string.on_this_phone),
                         iconTint = chosen?.let { Color(it.color) },
-                        onClick = if (writable.size > 1) ({ open = Open.Calendar }) else null,
+                        onClick = { open = Open.Calendar },
                     )
                 }
                 Spacer(Modifier.height(12.dp))
@@ -291,6 +296,26 @@ fun EditEventScreen(viewModel: CalendarViewModel, screen: Screen.Edit, onClose: 
                 onPick = { update(current.copy(calendarId = it.id)); open = null },
                 onDismiss = { open = null },
                 leading = { ColorDot(it.color) },
+                footer = {
+                    Row(
+                        Modifier.fillMaxWidth().clip(MaterialTheme.shapes.medium).clickable { open = Open.NewCalendar }.padding(vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(Icons.Rounded.Add, null, Modifier.padding(horizontal = 12.dp), tint = MaterialTheme.colorScheme.primary)
+                        Text(stringResource(R.string.new_calendar), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.primary)
+                    }
+                },
+            )
+            Open.NewCalendar -> CalendarDialog(
+                title = stringResource(R.string.new_calendar),
+                initialName = "",
+                initialColor = calendarColors[calendars.orEmpty().size % calendarColors.size],
+                onSave = { name, color ->
+                    open = null
+                    viewModel.createCalendar(name, color) { id -> if (id != null) draft = draft?.copy(calendarId = id) }
+                },
+                onDelete = null,
+                onDismiss = { open = Open.Calendar },
             )
             Open.Reminder -> ChoiceDialog(
                 title = stringResource(R.string.add_reminder),

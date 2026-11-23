@@ -50,14 +50,14 @@ The storage keeps times as milliseconds. Two things about that shape the app:
 | Screen | What it's for | File |
 | --- | --- | --- |
 | First run | A welcome with three short points, and the button that asks for calendar access (or opens the app's system settings once Android won't ask again) | `ui/setup/AccessScreen.kt` |
-| Home | The search bar with Today and Settings, the month heading with the date picker and arrows, the + button and the bottom bar switching views | `ui/home/HomeScreen.kt` |
+| Home | The search bar with Today (showing today's date) and Settings, the month heading with the date picker and arrows, the + button and the bottom bar switching views | `ui/home/HomeScreen.kt` |
 | Month view | Six weeks of days with their events written in; tap a day for its sheet, long-press to add an event | `ui/month/MonthViews.kt`, `ui/month/MonthGrid.kt` |
 | A day's sheet | All of one day's events, and New event, from the Month view | `ui/home/DaySheet.kt` |
 | Week view | Seven days hour by hour, all-day row, the line at the time now; tap an hour to add an event | `ui/week/WeekView.kt` |
 | Agenda view | What's on, day by day, from the picked day; Show earlier and Show later | `ui/agenda/AgendaList.kt` |
 | Planner view | A small month with dots, and the list from the picked day | `ui/month/MonthViews.kt`, `ui/month/MonthGrid.kt` |
 | Event | One event's details; Edit and Delete, asking "this event or all" for repeating ones | `ui/event/EventScreen.kt` |
-| Editor | Making or changing an event: title, all day, start and end, repeat, calendar, reminders, place, notes | `ui/edit/EditEventScreen.kt` |
+| Editor | Making or changing an event: title, all day, start and end, repeat, calendar (with New calendar), reminders, place, notes | `ui/edit/EditEventScreen.kt`, `ui/settings/CalendarsScreen.kt` (the new calendar dialog) |
 | Search | Finding events by words in their title, place or notes | `ui/search/SearchScreen.kt` |
 | Settings | Calendars, week start, new event length and reminder, reminder notifications | `ui/settings/SettingsScreen.kt` |
 | Calendars | Every calendar by account with its show/hide switch; making, renaming, recolouring and deleting calendars on this phone | `ui/settings/CalendarsScreen.kt` |
@@ -76,6 +76,9 @@ The storage keeps times as milliseconds. Two things about that shape the app:
 - **New events** start at the hour tapped in the Week view; otherwise at the next whole hour
   today, or 9 in the morning on another day. They last as long as set in Settings, get its
   default reminder, and go into the calendar the last new event went into.
+- **Choosing a calendar** in the editor lists every calendar events can be saved to. New
+  calendar at the bottom makes a calendar on this phone (name and colour) and picks it for
+  the event.
 - **Leaving the editor** with changes asks whether to discard them.
 - **Reminders.** The storage sets the alarms for every event's reminders and tells calendar
   apps when one is due, even when they aren't running. The app then shows a notification for
@@ -104,6 +107,7 @@ The storage keeps times as milliseconds. Two things about that shape the app:
 | Dates and times in the phone's language and clock style, event times, reminder and repeat wording | `ui/components/Format.kt` |
 | Event cards, coloured labels, day headings | `ui/components/Events.kt` |
 | Date, time and choice dialogs, colour swatches | `ui/components/Pickers.kt` |
+| The Today button's icon, with today's date drawn in | `ui/components/TodayIcon.kt` |
 | Hearing about changes in the storage | `util/ContentChanges.kt` |
 | The look: theme, font, search bar, top and bottom bars, grouped cards, empty states, press animation | `ui/theme/Theme.kt`, `ui/components/SearchPill.kt`, `ui/components/TopBars.kt`, `ui/components/BottomBar.kt`, `ui/components/Rows.kt`, `ui/components/Lists.kt`, `ui/components/Motion.kt` |
 
