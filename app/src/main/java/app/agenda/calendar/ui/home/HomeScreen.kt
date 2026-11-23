@@ -229,6 +229,3 @@ fun HomeScreen(
         )
     }
 }
-
-/** Rounds the tap highlight of the month heading. */
-private fun Modifier.clip(RoundedCornerShape(12.dp)): Modifier = this.then(Modifier.clip(RoundedCornerShape(12.dp)))
