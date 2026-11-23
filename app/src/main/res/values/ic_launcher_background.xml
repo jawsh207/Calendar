@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Deep teal, behind the white calendar page glyph. -->
-    <color name="ic_launcher_background">#1F7A72</color>
+    <!-- Cranberry red, behind the white calendar page glyph; the other apps already use teal, green, amber, orange, blue, purple and navy. -->
+    <color name="ic_launcher_background">#D63A4F</color>
 </resources>
