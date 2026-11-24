@@ -33,8 +33,11 @@ fun segmentShape(index: Int, count: Int, large: Dp = 24.dp, small: Dp = 6.dp): S
     else -> RoundedCornerShape(small)
 }
 
-/** Space between the rows of a grouped list. */
+/** Space between the rows of a grouped list, and between the days of a calendar grid. */
 val SEGMENT_GAP = 2.dp
+
+/** Corner radius of the card a calendar grid sits on: a grouped list's outer corners. */
+val GRID_CORNER = 24.dp
 
 /**
  * A section heading in the theme's primary colour, 32dp from the screen edge to line up with

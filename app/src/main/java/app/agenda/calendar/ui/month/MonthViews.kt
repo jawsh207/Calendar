@@ -3,15 +3,15 @@ package app.agenda.calendar.ui.month
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -89,7 +89,7 @@ fun MonthView(
             formats = formats,
             onDayClick = { day -> viewModel.select(day); onDayClick(day) },
             onDayLongClick = onNewEvent,
-            modifier = Modifier.padding(horizontal = 4.dp),
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
         )
     }
 }
@@ -120,9 +120,13 @@ fun MonthAgendaView(
             val month = monthOfPage(page)
             val days = remember(month, firstDay) { monthGrid(month, firstDay) }
             val occurrences by rememberOccurrences(viewModel, days.first(), days.last())
-            CompactMonthGrid(month, firstDay, today, selected, occurrences.orEmpty(), formats, onDayClick = viewModel::select)
+            CompactMonthGrid(
+                month, firstDay, today, selected, occurrences.orEmpty(), formats,
+                onDayClick = viewModel::select,
+                modifier = Modifier.padding(horizontal = 16.dp),
+            )
         }
-        HorizontalDivider(Modifier.padding(top = 4.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+        Spacer(Modifier.height(8.dp))
         val occurrences by rememberOccurrences(viewModel, selected, selected.plusDays(LIST_DAYS.toLong()))
         val days = remember(occurrences, selected) { agendaDays(occurrences.orEmpty(), selected, LIST_DAYS, alwaysShow = setOf(selected)) }
         LazyColumn(

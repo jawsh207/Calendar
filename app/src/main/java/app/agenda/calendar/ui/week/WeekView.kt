@@ -1,14 +1,19 @@
 package app.agenda.calendar.ui.week
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,13 +21,13 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,9 +43,11 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -63,6 +70,9 @@ import app.agenda.calendar.data.weekPage
 import app.agenda.calendar.ui.CalendarViewModel
 import app.agenda.calendar.ui.components.EventChip
 import app.agenda.calendar.ui.components.Formats
+import app.agenda.calendar.ui.components.GRID_CORNER
+import app.agenda.calendar.ui.components.SEGMENT_GAP
+import app.agenda.calendar.ui.components.segmentShape
 import app.agenda.calendar.ui.components.timeText
 import app.agenda.calendar.ui.month.DayNumber
 import app.agenda.calendar.ui.rememberOccurrences
@@ -158,85 +168,121 @@ private fun WeekPage(
         snapshotFlow { scroll.value }.collect { if (current()) sharedScroll.intValue = it }
     }
 
-    Column(Modifier.fillMaxSize()) {
+    val card = scheme.surfaceContainerHighest
+    val hasAllDay = allDay.any { it.isNotEmpty() }
+    // The all-day row and the hour grid are the two pieces of one card, stacked like the rows
+    // of a grouped list; the gaps between the day columns are the lines between the days.
+    val gridShape = segmentShape(if (hasAllDay) 1 else 0, if (hasAllDay) 2 else 1, large = GRID_CORNER)
+
+    Column(Modifier.fillMaxSize().padding(end = 12.dp, bottom = 8.dp), verticalArrangement = Arrangement.spacedBy(SEGMENT_GAP)) {
         Row(Modifier.fillMaxWidth().padding(bottom = 4.dp)) {
             Box(Modifier.width(GUTTER))
-            days.forEach { day ->
-                Column(
-                    Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).clickable { viewModel.select(day) },
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                        formats.weekday(day, TextStyle.SHORT),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = if (day == today) scheme.primary else scheme.onSurfaceVariant,
-                    )
-                    DayNumber(day, day == today, day == selected, inMonth = true, size = 32.dp)
+            Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(SEGMENT_GAP)) {
+                days.forEach { day ->
+                    Column(
+                        Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).clickable { viewModel.select(day) },
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(
+                            formats.weekday(day, TextStyle.SHORT),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = if (day == today) scheme.primary else scheme.onSurfaceVariant,
+                        )
+                        DayNumber(day, day == today, day == selected, inMonth = true, size = 32.dp)
+                    }
                 }
             }
         }
-        if (allDay.any { it.isNotEmpty() }) {
-            Row(Modifier.fillMaxWidth().padding(bottom = 4.dp)) {
+        if (hasAllDay) {
+            Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
                 Text(
                     stringResource(R.string.all_day_short),
                     style = MaterialTheme.typography.labelSmall,
                     color = scheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.width(GUTTER).padding(top = 2.dp),
+                    modifier = Modifier.width(GUTTER).padding(top = 6.dp),
                 )
-                allDay.forEachIndexed { index, events ->
-                    Column(Modifier.weight(1f).padding(horizontal = 1.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        val shown = if (events.size > ALL_DAY_ROWS) ALL_DAY_ROWS - 1 else events.size
-                        events.take(shown).forEach { o ->
-                            EventChip(o, Modifier.clip(RoundedCornerShape(4.dp)).clickable { onOpen(o) })
-                        }
-                        if (events.size > shown) {
-                            Text(
-                                "+${events.size - shown}",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = scheme.onSurfaceVariant,
-                                modifier = Modifier.clickable { viewModel.select(days[index]) }.padding(start = 4.dp),
-                            )
+                Row(
+                    Modifier.weight(1f).fillMaxHeight().clip(segmentShape(0, 2, large = GRID_CORNER)),
+                    horizontalArrangement = Arrangement.spacedBy(SEGMENT_GAP),
+                ) {
+                    allDay.forEachIndexed { index, events ->
+                        Column(
+                            Modifier.weight(1f).fillMaxHeight().background(card).padding(horizontal = 1.dp, vertical = 4.dp),
+                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                        ) {
+                            val shown = if (events.size > ALL_DAY_ROWS) ALL_DAY_ROWS - 1 else events.size
+                            events.take(shown).forEach { o ->
+                                EventChip(o, Modifier.clip(RoundedCornerShape(4.dp)).clickable { onOpen(o) })
+                            }
+                            if (events.size > shown) {
+                                Text(
+                                    "+${events.size - shown}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = scheme.onSurfaceVariant,
+                                    modifier = Modifier.clickable { viewModel.select(days[index]) }.padding(start = 4.dp),
+                                )
+                            }
                         }
                     }
                 }
             }
         }
-        HorizontalDivider(color = scheme.outlineVariant)
-        Row(Modifier.fillMaxWidth().weight(1f).verticalScroll(scroll)) {
-            HourGutter(formats)
-            days.forEach { day ->
-                DayColumn(
-                    day = day,
-                    occurrences = list,
-                    today = day == today,
-                    formats = formats,
-                    onOpen = onOpen,
-                    onNewEvent = { hour -> onNewEvent(day, hour) },
-                    modifier = Modifier.weight(1f).height(HOUR * 24),
+        Row(Modifier.fillMaxWidth().weight(1f)) {
+            HourGutter(formats, scroll)
+            Row(
+                Modifier.weight(1f).fillMaxHeight().clip(gridShape).verticalScroll(scroll),
+                horizontalArrangement = Arrangement.spacedBy(SEGMENT_GAP),
+            ) {
+                days.forEach { day ->
+                    DayColumn(
+                        day = day,
+                        occurrences = list,
+                        today = day == today,
+                        formats = formats,
+                        onOpen = onOpen,
+                        onNewEvent = { hour -> onNewEvent(day, hour) },
+                        modifier = Modifier.weight(1f).height(HOUR * 24),
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * The hour labels down the side of the time grid. They sit on the page outside the card, so
+ * rather than scrolling with the grid they follow its [scroll] position, and dragging them
+ * scrolls the grid too.
+ */
+@Composable
+private fun HourGutter(formats: Formats, scroll: ScrollState) {
+    Box(
+        Modifier.width(GUTTER).fillMaxHeight().clipToBounds()
+            // A vertical scroll runs the drag backwards (finger up moves the hours up); match it.
+            .scrollable(scroll, Orientation.Vertical, reverseDirection = true),
+    ) {
+        Box(
+            Modifier.wrapContentHeight(Alignment.Top, unbounded = true).height(HOUR * 24).fillMaxWidth()
+                .graphicsLayer { translationY = -scroll.value.toFloat() },
+        ) {
+            for (hour in 1 until 24) {
+                Text(
+                    formats.hour.format(LocalTime.of(hour, 0)),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.width(GUTTER - 8.dp).offset(y = HOUR * hour - 7.dp),
                 )
             }
         }
     }
 }
 
-/** The hour labels down the side of the time grid. */
-@Composable
-private fun HourGutter(formats: Formats) {
-    Box(Modifier.width(GUTTER).height(HOUR * 24)) {
-        for (hour in 1 until 24) {
-            Text(
-                formats.hour.format(LocalTime.of(hour, 0)),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.End,
-                modifier = Modifier.width(GUTTER - 8.dp).offset(y = HOUR * hour - 7.dp),
-            )
-        }
-    }
-}
-
-/** One day's column of the time grid: hour lines, the day's timed events, and the time now. */
+/**
+ * One day's column of the time grid, in the card's colour: hour lines in the page colour, the
+ * day's timed events, and the time now.
+ */
 @Composable
 private fun DayColumn(
     day: LocalDate,
@@ -249,15 +295,17 @@ private fun DayColumn(
 ) {
     val context = LocalContext.current
     val scheme = MaterialTheme.colorScheme
-    val line = scheme.outlineVariant.copy(alpha = 0.6f)
+    val card = scheme.surfaceContainerHighest
+    val line = scheme.background
     val placed = remember(occurrences, day) { layoutDay(occurrences, day) }
     val hourPx = with(LocalDensity.current) { HOUR.toPx() }
     val newEvent by rememberUpdatedState(onNewEvent)
     BoxWithConstraints(
         modifier
+            .background(card)
             .drawBehind {
-                drawLine(line, Offset(0f, 0f), Offset(0f, size.height), 1f)
-                for (hour in 1 until 24) drawLine(line, Offset(0f, hourPx * hour), Offset(size.width, hourPx * hour), 1f)
+                val stroke = 1.dp.toPx()
+                for (hour in 1 until 24) drawLine(line, Offset(0f, hourPx * hour), Offset(size.width, hourPx * hour), stroke)
             }
             .pointerInput(day) { detectTapGestures(onTap = { offset -> newEvent((offset.y / hourPx).toInt().coerceIn(0, 23)) }) },
     ) {

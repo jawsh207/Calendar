@@ -112,7 +112,8 @@ fun EventChip(occurrence: Occurrence, modifier: Modifier = Modifier, faded: Bool
 
 /**
  * The day heading over a day's events in the lists: the weekday and date, in the theme's
- * primary colour for today.
+ * primary colour like the section headings in Contacts and Dialtone. Today and tomorrow are
+ * named.
  */
 @Composable
 fun DayHeading(day: LocalDate, today: LocalDate, formats: Formats, modifier: Modifier = Modifier) {
@@ -125,7 +126,7 @@ fun DayHeading(day: LocalDate, today: LocalDate, formats: Formats, modifier: Mod
         label,
         style = MaterialTheme.typography.titleSmall,
         fontWeight = FontWeight.Medium,
-        color = if (day == today) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+        color = MaterialTheme.colorScheme.primary,
         modifier = modifier.padding(start = 32.dp, top = 20.dp, bottom = 8.dp),
     )
 }
