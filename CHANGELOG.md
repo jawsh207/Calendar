@@ -2,6 +2,14 @@
 
 What's new in each release of Calendar. The newest is at the top.
 
+## 0.1.1
+
+Look
+- The Month, Planner and Week views now sit on a rounded card, like the lists in Contacts and Dialtone, with a thin gap between each day.
+- In the Week view, all-day events and the hours are two parts of the same card. The hour labels stay beside it and scroll with it.
+- Day headings in Agenda, Planner and search are all in the theme colour, like the headings in Contacts and Dialtone.
+- The weekday letters over the month are all the same colour.
+
 ## 0.1.0
 
 The first release.
