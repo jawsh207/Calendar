@@ -23,7 +23,8 @@ in other calendar apps that respect the switch, and the other way round.
 
 The app keeps only a small settings file for itself: the view last used, the day weeks start
 on, how long new events last and their default reminder, whether to show reminder
-notifications, and the calendar the last new event went into.
+notifications, and the calendar the last new event went into. Each widget also keeps two
+numbers of its own: which month the Month widget is turned to, and when it was last redrawn.
 
 The storage notices every change, whoever makes it, and tells apps that are watching. While
 the app is open it watches, and every view reads again whenever anything changes (an edit
@@ -84,6 +85,17 @@ The storage keeps times as milliseconds. Two things about that shape the app:
   apps when one is due, even when they aren't running. The app then shows a notification for
   each reminder due and marks it shown; tapping it opens the event. Reminders for events
   already over (the phone was off) are marked without ringing.
+- **Widgets.** Agenda (the next 30 days that have something on, today always listed, with a +
+  for a new event) and Month (a month grid with a dot for each event, up to three a day, and
+  arrows to turn it). Every tap opens the app with one of the requests other apps send (open an
+  event, show a day, add an event). A widget is a picture the launcher keeps, so the app redraws
+  it whenever the calendar storage changes (Android runs a small job for each change, a couple
+  of seconds after it, so a sync redraws once), at midnight, when the clock, time zone, language
+  or week start changes, when access is given, and after a restart or app update. While there
+  are no widgets none of this is set up.
+- **Launcher shortcuts.** Long-pressing the app's icon offers New event, Search and Today.
+  Test builds have their own copy of the shortcut list, because a shortcut names the app it
+  opens and test builds have a different name.
 - **Requests from other apps.** Opening an event, opening the calendar at a time, adding an
   event (filled in by the other app, saved only when you tap Save) and editing an event, with
   the same requests Google Calendar answers.
@@ -102,7 +114,13 @@ The storage keeps times as milliseconds. Two things about that shape the app:
 | Watching the storage, the picked day and today, the settings, saving and deleting | `ui/CalendarViewModel.kt` |
 | Reading a range of days' events for a view and keeping it up to date | `ui/Occurrences.kt` |
 | Asking for access, the back stack and screen animations, handling requests | `ui/CalendarApp.kt`, `ui/Navigation.kt` |
-| Requests from other apps and reminder taps | `MainActivity.kt`, `intents/ExternalRequest.kt` |
+| Requests from other apps, widget taps, launcher shortcuts and reminder taps | `MainActivity.kt`, `intents/ExternalRequest.kt` |
+| The launcher shortcuts and their icons | `res/xml/shortcuts.xml` (and the test builds' copy in `src/dev/res/xml/shortcuts.xml`), `res/mipmap-anydpi/shortcut_*.xml` |
+| What the widgets show: the Agenda widget's days, the Month widget's month and cells | `data/WidgetLayout.kt` |
+| The Agenda widget | `widgets/AgendaWidget.kt`, `res/xml/agenda_widget_info.xml` |
+| The Month widget and its arrows | `widgets/MonthWidget.kt`, `res/xml/month_widget_info.xml` |
+| What the widgets share: their taps, the access check, the frame | `widgets/WidgetParts.kt` |
+| Keeping the widgets current: the storage watch, the midnight alarm, clock and restart changes | `widgets/WidgetUpdates.kt` |
 | Reminder notifications | `reminders/ReminderReceiver.kt` |
 | Dates and times in the phone's language and clock style, event times, reminder and repeat wording | `ui/components/Format.kt` |
 | Event cards, coloured labels, day headings | `ui/components/Events.kt` |
@@ -116,6 +134,8 @@ The storage keeps times as milliseconds. Two things about that shape the app:
 - **Read and write calendars:** everything lives in the calendar storage, so the app can do
   nothing without them. It asks on first run.
 - **Notifications:** for reminders. Asked for on first run with calendar access.
+- **Run at startup:** so the widgets' storage watch and midnight alarm, which Android forgets on
+  restart, are set up again. Android grants it without asking.
 
 The app has no internet access of its own; synced calendars reach the internet through their
 accounts' apps.

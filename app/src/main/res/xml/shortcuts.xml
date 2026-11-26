@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The launcher's long-press shortcuts. A shortcut names the app it opens by its id, which can't come from the build, so test builds (id app.agenda.calendar.dev) have their own copy in src/dev/res/xml; keep the two the same apart from the id. -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="new_event"
+        android:icon="@mipmap/shortcut_add"
+        android:shortcutShortLabel="@string/new_event"
+        android:shortcutLongLabel="@string/new_event">
+        <!-- The same request another app makes to add an event. -->
+        <intent
+            android:action="android.intent.action.INSERT"
+            android:data="content://com.android.calendar/events"
+            android:targetPackage="app.agenda.calendar"
+            android:targetClass="app.agenda.calendar.MainActivity" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="search"
+        android:icon="@mipmap/shortcut_search"
+        android:shortcutShortLabel="@string/shortcut_search"
+        android:shortcutLongLabel="@string/search_events">
+        <intent
+            android:action="app.agenda.calendar.action.SEARCH"
+            android:targetPackage="app.agenda.calendar"
+            android:targetClass="app.agenda.calendar.MainActivity" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="today"
+        android:icon="@mipmap/shortcut_today"
+        android:shortcutShortLabel="@string/today"
+        android:shortcutLongLabel="@string/shortcut_today_long">
+        <intent
+            android:action="app.agenda.calendar.action.TODAY"
+            android:targetPackage="app.agenda.calendar"
+            android:targetClass="app.agenda.calendar.MainActivity" />
+    </shortcut>
+</shortcuts>

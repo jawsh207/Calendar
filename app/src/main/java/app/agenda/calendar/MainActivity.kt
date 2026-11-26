@@ -13,11 +13,13 @@ import app.agenda.calendar.ui.CalendarApp
 import app.agenda.calendar.ui.CalendarViewModel
 import app.agenda.calendar.ui.Request
 import app.agenda.calendar.ui.theme.CalendarTheme
+import java.time.LocalDate
 
 /**
  * The app's only screen holder. Everything inside is drawn by [CalendarApp]. It also takes
- * what other apps ask for (open an event, show a day, add an event) and the tap on a reminder
- * notification, and passes them on to be handled once the screens are ready.
+ * what other apps and the widgets ask for (open an event, show a day, add an event), the
+ * launcher shortcuts and the tap on a reminder notification, and passes them on to be handled
+ * once the screens are ready.
  */
 class MainActivity : ComponentActivity() {
     private val viewModel: CalendarViewModel by viewModels()
@@ -44,6 +46,11 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun handle(intent: Intent?) {
+        when (intent?.action) {
+            ACTION_SEARCH -> return viewModel.request(Request.Search)
+            // Read when tapped, not when the shortcut was made, so it's always the day it is now.
+            ACTION_TODAY -> return viewModel.request(Request.ShowDate(LocalDate.now()))
+        }
         if (intent?.action == ACTION_OPEN_EVENT) {
             val id = intent.getLongExtra(EXTRA_EVENT_ID, -1L)
             if (id > 0) {
@@ -56,8 +63,14 @@ class MainActivity : ComponentActivity() {
         parseRequest(intent)?.let(viewModel::request)
     }
 
-    /** The intent a reminder notification sends when tapped. */
+    /** The app's own intents: a reminder notification's tap and the launcher shortcuts. */
     companion object {
+        /** The Search launcher shortcut. Named in res/xml/shortcuts.xml too. */
+        const val ACTION_SEARCH = "app.agenda.calendar.action.SEARCH"
+
+        /** The Today launcher shortcut: the calendar on today. Named in res/xml/shortcuts.xml too. */
+        const val ACTION_TODAY = "app.agenda.calendar.action.TODAY"
+
         /** Opens the event in [EXTRA_EVENT_ID], at the repeat from [EXTRA_BEGIN] to [EXTRA_END]. */
         const val ACTION_OPEN_EVENT = "app.agenda.calendar.action.OPEN_EVENT"
 

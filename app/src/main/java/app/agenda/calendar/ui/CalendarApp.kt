@@ -104,6 +104,7 @@ private fun Screens(viewModel: CalendarViewModel) {
                 open(Screen.Edit())
             }
             is Request.EditEvent -> open(Screen.Edit(id = asked.id, scope = EditScope.All))
+            Request.Search -> if (stack.last() != Screen.Search) open(Screen.Search)
         }
     }
 

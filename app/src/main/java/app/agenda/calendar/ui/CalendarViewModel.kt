@@ -18,6 +18,8 @@ import app.agenda.calendar.data.Occurrence
 import app.agenda.calendar.data.Settings
 import app.agenda.calendar.data.calendarColors
 import app.agenda.calendar.util.contentChanges
+import app.agenda.calendar.widgets.keepWidgetsCurrent
+import app.agenda.calendar.widgets.refreshWidgetsSoon
 import java.time.LocalDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -35,7 +37,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * What another app, or a reminder notification, asked the app to show. Kept until the screens
+ * What another app, a widget, a launcher shortcut or a reminder notification asked the app to
+ * show. Kept until the screens
  * are ready (calendar access granted) and then handled once.
  */
 sealed interface Request {
@@ -50,6 +53,9 @@ sealed interface Request {
 
     /** Edit event [id]. */
     data class EditEvent(val id: Long) : Request
+
+    /** Open search, from the launcher's Search shortcut. */
+    data object Search : Request
 }
 
 /**
@@ -115,9 +121,11 @@ class CalendarViewModel(app: Application) : AndroidViewModel(app) {
     /** Something asked for from outside, not yet handled. */
     val request: StateFlow<Request?> = _request.asStateFlow()
 
-    /** Called when calendar access may have changed (after the permission prompt). */
+    /** Called when calendar access may have changed (after the permission prompt); redraws the widgets to match. */
     fun onAccessChanged() {
         _access.value = hasAccess()
+        // Widgets placed before access was given are still asking for it.
+        refreshWidgetsSoon(getApplication())
         if (_access.value) {
             viewModelScope.launch(Dispatchers.IO) {
                 repository.ensureWritableCalendar(getApplication<Application>().getString(R.string.personal), calendarColors[6])
@@ -125,7 +133,10 @@ class CalendarViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    /** Called each time the app comes to the front: picks up a new day and permission changes. */
+    /**
+     * Called each time the app comes to the front: picks up a new day and permission changes,
+     * and makes sure any widgets are being kept current.
+     */
     fun onForeground() {
         val now = LocalDate.now()
         if (now != _today.value) {
@@ -134,6 +145,7 @@ class CalendarViewModel(app: Application) : AndroidViewModel(app) {
             _today.value = now
         }
         if (hasAccess() != _access.value) onAccessChanged()
+        keepWidgetsCurrent(getApplication())
     }
 
     private fun hasAccess(): Boolean {
@@ -224,9 +236,12 @@ class CalendarViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch(Dispatchers.IO) { runCatching { repository.deleteCalendar(calendar) } }
     }
 
-    /** Changes the day weeks start on. */
+    /** Changes the day weeks start on, in the app and the Month widget. */
     fun setFirstDay(day: FirstDay) {
-        viewModelScope.launch { settings.setFirstDay(day) }
+        viewModelScope.launch {
+            settings.setFirstDay(day)
+            refreshWidgetsSoon(getApplication())
+        }
     }
 
     /** Changes how long new events last. */

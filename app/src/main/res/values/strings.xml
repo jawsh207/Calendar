@@ -56,6 +56,17 @@
         <item quantity="other"><xliff:g id="count" example="3">%1$d</xliff:g> events</item>
     </plurals>
 
+    <!-- Widgets -->
+    <string name="widget_agenda_name">Agenda</string>
+    <string name="widget_agenda_description">What\'s coming up, day by day</string>
+    <string name="widget_month_name">Month</string>
+    <string name="widget_month_description">A month at a glance, with a dot for each event</string>
+    <string name="widget_no_access">Tap to give Calendar access to your calendars</string>
+
+    <!-- Launcher shortcuts -->
+    <string name="shortcut_search">Search</string>
+    <string name="shortcut_today_long">Go to today</string>
+
     <!-- Search -->
     <string name="no_results_title">No matching events</string>
     <string name="no_results_body">Searches titles, places and notes from a year ago to two years ahead.</string>

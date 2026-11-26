@@ -52,6 +52,23 @@ phone.
 - **Settings:** the day weeks start on, how long new events last, their default reminder, and
   whether the app shows reminder notifications.
 
+### Widgets and shortcuts
+
+Two home screen widgets, both in the wallpaper's colours and resizable:
+
+- **Agenda:** today's date with a **+** for a new event, then the next 30 days that have
+  something on, grouped by day as in the Agenda view. Today is always listed. Tap an event to
+  open it, or a day's heading or the date to open the app on that day.
+- **Month:** the month on a rounded grid like the Month view, today circled and a dot for each
+  event on a day (up to three). The arrows turn the month; tap a day to open the app on it.
+  Tapping the month's name opens the app, or comes back to this month from another one.
+
+They follow the app's week start, and redraw when any event or calendar changes (here, in
+another app or from a sync), at midnight, and when the clock, time zone or language changes.
+
+Long-press the app's icon for **New event**, **Search** and **Today** (opens the calendar on
+today). They can be dragged onto the home screen as icons of their own.
+
 ### Reminders
 
 Android's calendar storage keeps the alarms for every event's reminders, whichever app made the
@@ -76,6 +93,7 @@ phone's calendar app:
 | --- | --- |
 | Read and write calendars | Everything: events and calendars live in Android's calendar storage |
 | Notifications | Event reminders |
+| Run at startup | Sets the widgets' updates up again after the phone restarts (it shows no prompt) |
 
 The app has no internet permission.
 

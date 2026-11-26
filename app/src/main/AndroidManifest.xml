@@ -6,6 +6,9 @@
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- After the phone restarts, sets the widgets' storage watch and midnight alarm up again;
+         Android forgets both on restart. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -25,6 +28,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.APP_CALENDAR" />
             </intent-filter>
+            <!-- Long-press shortcuts on the launcher icon: New event, Search and Today. -->
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
             <!-- Another app opening one event (content://com.android.calendar/events/<id>). -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -59,6 +64,47 @@
             <intent-filter>
                 <action android:name="android.intent.action.EVENT_REMINDER" />
                 <data android:scheme="content" android:host="com.android.calendar" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Home screen widgets: the Agenda list and the Month grid. -->
+        <receiver
+            android:name=".widgets.AgendaWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_agenda_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/agenda_widget_info" />
+        </receiver>
+        <receiver
+            android:name=".widgets.MonthWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_month_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/month_widget_info" />
+        </receiver>
+
+        <!-- Redraws the widgets whenever the calendar storage changes. -->
+        <service
+            android:name=".widgets.CalendarChangeJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <!-- Redraws the widgets at midnight and when the clock, time zone or language changes,
+             and sets their updates up again after a restart or an app update. These system broadcasts are among
+             the few Android still delivers to apps that aren't running. -->
+        <receiver
+            android:name=".widgets.WidgetClockReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
     </application>
