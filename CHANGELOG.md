@@ -2,6 +2,16 @@
 
 What's new in each release of Calendar. The newest is at the top.
 
+## 0.1.2
+
+Widgets
+- New Agenda widget: today's date with a + for a new event, then the next 30 days that have something on, grouped by day. Tap an event to open it, or a day to open the calendar there.
+- New Month widget: the month on a rounded grid with today circled and a dot for each event. Use the arrows to change months, and tap a day to open it.
+- Both widgets use your wallpaper's colours, follow your week start setting, and update when events change here, in another app or from a sync, and at midnight.
+
+Shortcuts
+- Long-press the app icon for New event, Search and Today. Each can also be dragged onto the home screen.
+
 ## 0.1.1
 
 Look
